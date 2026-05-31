@@ -14,6 +14,8 @@ const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase();
 const isProduction = process.env.NODE_ENV === "production";
 const secureCookieMode = isProduction || (process.env.BETTER_AUTH_URL?.startsWith("https://") ?? false);
 const trustedOrigins = [
+  "https://anket-web.pages.dev",
+  "https://a238bb65.anket-web.pages.dev",
   process.env.FRONTEND_URL,
   process.env.CALLBACK_URL,
   process.env.BETTER_AUTH_URL,
@@ -151,12 +153,24 @@ export const nipAuth = betterAuth({
   },
 });
 
-/* ------------------------------------------------------------------ */
-/*  Helper: pick the right instance based on request origin / host     */
-/* ------------------------------------------------------------------ */
+export const prodAuth = betterAuth({
+  ...sharedConfig,
+  baseURL: process.env.BETTER_AUTH_URL || "https://anket-api-i3i7.onrender.com",
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      redirectURI: `${process.env.BETTER_AUTH_URL || "https://anket-api-i3i7.onrender.com"}/api/auth/callback/google`,
+    },
+  },
+});
+
 export function getAuth(req: Request) {
   const origin = req.headers.get("origin") || "";
   const host = req.headers.get("host") || "";
+  if (process.env.NODE_ENV === "production") {
+    return prodAuth;
+  }
   if (origin.includes("nip.io") || host.includes("nip.io")) {
     return nipAuth;
   }
