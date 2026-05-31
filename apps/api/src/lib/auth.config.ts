@@ -165,7 +165,9 @@ export const prodAuth = betterAuth({
     defaultCookieAttributes: {
       sameSite: "none",
       secure: true,
-      partitioned: true,
+      // partitioned: true kaldırıldı — cross-origin fetch ile başlayan OAuth flow'da
+      // partition key sign-in (pages.dev) ile callback (render.com) arasında
+      // farklılaştığı için state_mismatch hatasına yol açıyordu.
     },
     database: {
       generateId: () => randomUUID(),
