@@ -1,14 +1,20 @@
+packages/shared/package.json dosyasını şu şekilde güncelle:
+
 {
   "name": "@gorunmeyen-lig/shared",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
   },
   "scripts": {
+    "build": "tsc",
     "type-check": "tsc --noEmit",
     "lint": "eslint src/"
   },
@@ -19,3 +25,6 @@
     "typescript": "^5.7.0"
   }
 }
+
+Ayrıca packages/shared/tsconfig.json dosyasını da göster,
+"outDir": "./dist" ve "declaration": true ayarları olması lazım.
