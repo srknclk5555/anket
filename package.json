@@ -1,0 +1,29 @@
+{
+  "name": "gorunmeyen-lig-anketi",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "dev:web": "turbo run dev --filter=@gorunmeyen-lig/web",
+    "dev:api": "turbo run dev --filter=@gorunmeyen-lig/api",
+    "dev:worker": "turbo run dev --filter=@gorunmeyen-lig/worker",
+    "build": "turbo run build",
+    "build:web": "turbo run build --filter=@gorunmeyen-lig/web",
+    "build:api": "turbo run build --filter=@gorunmeyen-lig/api",
+    "build:worker": "turbo run build --filter=@gorunmeyen-lig/worker",
+    "db:generate": "turbo run db:generate --filter=@gorunmeyen-lig/api",
+    "db:migrate": "turbo run db:migrate --filter=@gorunmeyen-lig/api",
+    "db:push": "turbo run db:push --filter=@gorunmeyen-lig/api",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.0",
+    "typescript": "^5.7.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "drizzle-orm": "^0.45.0"
+    }
+  }
+}
