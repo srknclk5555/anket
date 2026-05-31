@@ -156,6 +156,21 @@ export const nipAuth = betterAuth({
 export const prodAuth = betterAuth({
   ...sharedConfig,
   baseURL: "https://anket-api-i3i7.onrender.com",
+  advanced: {
+    ...sharedConfig.advanced,
+    useSecureCookies: true,
+    crossSubDomainCookies: {
+      enabled: false,
+    },
+    defaultCookieAttributes: {
+      sameSite: "none",
+      secure: true,
+      partitioned: true,
+    },
+    database: {
+      generateId: () => randomUUID(),
+    },
+  },
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
