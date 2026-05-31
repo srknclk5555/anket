@@ -12,22 +12,21 @@ import { authRateLimit } from "./middleware/rateLimit.js";
 const app = new Hono();
 
 app.use("*", logger());
+const allowedOrigins = [
+  "https://anket-web.pages.dev",
+  "https://a238bb65.anket-web.pages.dev",
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
 app.use(
   "*",
   cors({
     origin: (origin) => {
       const fallbackOrigin = process.env.FRONTEND_URL || "http://localhost:5173";
-      const allowedUrls = [
-        process.env.FRONTEND_URL,
-        process.env.CALLBACK_URL,
-        process.env.BETTER_AUTH_URL,
-      ].filter(Boolean);
-
       if (!origin) {
         return fallbackOrigin;
       }
-
-      return allowedUrls.includes(origin) ? origin : fallbackOrigin;
+      return allowedOrigins.includes(origin) ? origin : fallbackOrigin;
     },
     credentials: true,
     allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
