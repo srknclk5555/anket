@@ -166,6 +166,9 @@ importers:
       vite:
         specifier: ^6.0.0
         version: 6.4.2(@types/node@22.19.19)(jiti@1.21.7)(tsx@4.22.3)
+      wrangler:
+        specifier: ^3.99.0
+        version: 3.114.17(@cloudflare/workers-types@4.20260526.1)
 
   apps/worker:
     dependencies:
