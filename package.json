@@ -9,7 +9,7 @@
     "dev:worker": "turbo run dev --filter=@gorunmeyen-lig/worker",
     "build": "turbo run build",
     "build:web": "turbo run build --filter=@gorunmeyen-lig/web",
-    "build:api": "pnpm --filter @gorunmeyen-lig/api build",
+    "build:api": "pnpm --filter @gorunmeyen-lig/shared build && pnpm --filter @gorunmeyen-lig/api build",
     "build:worker": "turbo run build --filter=@gorunmeyen-lig/worker",
     "db:generate": "turbo run db:generate --filter=@gorunmeyen-lig/api",
     "db:migrate": "turbo run db:migrate --filter=@gorunmeyen-lig/api",

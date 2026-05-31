@@ -1,4 +1,4 @@
-import type { QuestionWithOptions } from "./question";
+import type { QuestionWithOptions } from "./question.js";
 
 export type SurveyStatus = "draft" | "published" | "closed";
 
