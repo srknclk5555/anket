@@ -1,5 +1,3 @@
-packages/shared/package.json dosyasını şu şekilde güncelle:
-
 {
   "name": "@gorunmeyen-lig/shared",
   "version": "0.1.0",
@@ -25,6 +23,3 @@ packages/shared/package.json dosyasını şu şekilde güncelle:
     "typescript": "^5.7.0"
   }
 }
-
-Ayrıca packages/shared/tsconfig.json dosyasını da göster,
-"outDir": "./dist" ve "declaration": true ayarları olması lazım.
