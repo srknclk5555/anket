@@ -17,7 +17,14 @@ const sectionPayloadSchema = z.object({
   description: z.string().optional(),
 });
 
-const adminRoutes = new Hono();
+type Env = {
+  Variables: {
+    user: any;
+    parsedBody: any;
+  }
+};
+
+const adminRoutes = new Hono<Env>();
 
 // All admin routes require auth + admin role
 adminRoutes.use("/*", authMiddleware, apiRateLimit);
@@ -89,7 +96,7 @@ adminRoutes.delete("/surveys/:id", adminOnly, async (c) => {
 adminRoutes.patch("/surveys/:id/status", adminOnly, validateBody(updateSurveyStatusSchema), async (c) => {
   const surveyId = c.req.param("id");
   if (!surveyId) return c.json({ error: "Geçersiz ID" }, 400);
-  const body = c.get("parsedBody") as { status: string };
+  const body = c.get("parsedBody") as { status: "draft" | "published" | "closed" };
   const survey = await SurveyService.updateSurveyStatus(surveyId, body.status);
   if (!survey) return c.json({ error: "Anket bulunamadı" }, 404);
   return c.json({ survey });
@@ -163,7 +170,10 @@ adminRoutes.post("/sections/:id/questions", adminOnly, async (c) => {
   if (!result.success) {
     return c.json({ error: "Doğrulama hatası", details: result.error.errors }, 400);
   }
-  const question = await SurveyService.addQuestion(sectionId, result.data);
+  const question = await SurveyService.addQuestion(sectionId, {
+    ...result.data,
+    customListId: result.data.customListId ?? undefined
+  });
   return c.json({ question }, 201);
 });
 
@@ -232,7 +242,7 @@ adminRoutes.delete("/options/:id", adminOnly, async (c) => {
 // ═══════════════════════════════════════
 
 // GET /api/admin/surveys/:id/responses
-adminRoutes.get("/surveys/:id/responses", adminOnly, requireSurveyPermission("can_view"), async (c) => {
+adminRoutes.get("/surveys/:id/responses", adminOnly, requireSurveyPermission("canView"), async (c) => {
   const surveyId = c.req.param("id");
   if (!surveyId) return c.json({ error: "Geçersiz ID" }, 400);
   const limitParam = c.req.query("limit") || "50";
@@ -251,7 +261,7 @@ adminRoutes.get("/surveys/:id/stats", adminOnly, async (c) => {
 });
 
 // GET /api/admin/surveys/:id/export/csv
-adminRoutes.get("/surveys/:id/export/csv", adminOnly, requireSurveyPermission("can_export"), async (c) => {
+adminRoutes.get("/surveys/:id/export/csv", adminOnly, requireSurveyPermission("canExport"), async (c) => {
   const surveyId = c.req.param("id");
   if (!surveyId) return c.json({ error: "Geçersiz ID" }, 400);
   const data = await ResponseService.exportResponsesCSV(surveyId);

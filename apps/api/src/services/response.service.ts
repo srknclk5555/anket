@@ -59,7 +59,7 @@ export class ResponseService {
       }
 
       // For choice-based questions (radio, checkbox), optionId is REQUIRED
-      if (questionType === "radio" || questionType === "checkbox") {
+      if (questionType === "single_choice" || questionType === "multiple_choice") {
         if (!answer.optionId) {
           throw new Error("Seçenek sorusu için bir seçenek belirtmelisiniz");
         }

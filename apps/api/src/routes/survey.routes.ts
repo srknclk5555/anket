@@ -7,7 +7,14 @@ import { timingCheck, honeypotCheck, getClientIp, getUserAgent } from "../middle
 import { validateBody } from "../middleware/validate.js";
 import { submitResponseSchema } from "@gorunmeyen-lig/shared";
 
-const surveyRoutes = new Hono();
+type Env = {
+  Variables: {
+    user: any;
+    parsedBody: any;
+  }
+};
+
+const surveyRoutes = new Hono<Env>();
 
 // GET /api/surveys — list published surveys
 surveyRoutes.get("/", async (c) => {

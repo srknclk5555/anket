@@ -44,7 +44,7 @@ export const adminOnly = requireRole("admin");
  * Used for editor/viewer roles that are assigned per-survey
  */
 export function requireSurveyPermission(
-  permission: "can_edit" | "can_view" | "can_export"
+  permission: "canEdit" | "canView" | "canExport"
 ) {
   return createMiddleware(async (c, next) => {
     const user = c.get("user");
@@ -60,10 +60,15 @@ export function requireSurveyPermission(
       return c.json({ error: "Geçersiz anket ID" }, 400);
     }
 
+    const userId = (user as { id?: string }).id;
+    if (!userId) {
+      return c.json({ error: "Geçersiz kullanıcı" }, 401);
+    }
+
     const assignment = await db.query.surveyAssignments.findFirst({
       where: and(
         eq(surveyAssignments.surveyId, surveyId),
-        eq(surveyAssignments.userId, (user as { id?: string }).id)
+        eq(surveyAssignments.userId, userId)
       ),
     });
 
