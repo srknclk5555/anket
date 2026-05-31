@@ -1,12 +1,13 @@
 import { useAuthStore } from "@/stores/auth-store";
 import { LoginButton } from "./LoginButton";
+import { API_BASE } from "@/lib/api";
 
 export function UserMenu() {
   const { user, isAuthenticated, logout } = useAuthStore();
 
   const handleLogout = async () => {
     try {
-      await fetch("/api/auth/sign-out", {
+      await fetch(`${API_BASE}/api/auth/sign-out`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

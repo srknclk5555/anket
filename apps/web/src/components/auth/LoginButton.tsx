@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { API_BASE } from "@/lib/api";
 
 export function LoginButton() {
   const [isLoading, setIsLoading] = useState(false);
@@ -12,7 +13,7 @@ export function LoginButton() {
       const callbackPath = window.location.pathname + (window.location.search || "");
       const callbackURL = `${window.location.origin}${callbackPath || "/"}`;
 
-      const res = await fetch("/api/auth/sign-in/social", {
+      const res = await fetch(`${API_BASE}/api/auth/sign-in/social`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

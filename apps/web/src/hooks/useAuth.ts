@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useAuthStore } from "@/stores/auth-store";
 import type { SessionUser } from "@gorunmeyen-lig/shared";
+import { API_BASE } from "@/lib/api";
 
 export function useAuth() {
   const { user, isAuthenticated, isLoading, setUser, setLoading, logout } = useAuthStore();
@@ -9,7 +10,7 @@ export function useAuth() {
     const checkSession = async () => {
       setLoading(true);
       try {
-        const res = await fetch("/api/auth/me", { credentials: "include" });
+        const res = await fetch(`${API_BASE}/api/auth/me`, { credentials: "include" });
         if (res.ok) {
           const data = (await res.json()) as SessionUser;
           setUser(data);

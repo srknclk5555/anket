@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { api } from "@/lib/api";
+import { api, API_BASE } from "@/lib/api";
 import { ResponseTable } from "@/components/admin/ResponseTable";
 import { AdvancedStats } from "@/components/admin/AdvancedStats";
 import { DetailedReport } from "@/components/admin/DetailedReport";
@@ -37,7 +37,7 @@ export default function AdminResponsesPage() {
   const handleExportCSV = async () => {
     if (!id) return;
     try {
-      const blob = await fetch(`/api/admin/surveys/${id}/export-csv`).then((r) => r.blob());
+      const blob = await fetch(`${API_BASE}/api/admin/surveys/${id}/export-csv`).then((r) => r.blob());
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;

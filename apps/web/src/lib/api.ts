@@ -1,5 +1,5 @@
 /** Paths already include `/api/...`; Vite proxies `/api` to the backend in dev */
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
+export const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 
 interface ApiOptions extends RequestInit {
   token?: string;

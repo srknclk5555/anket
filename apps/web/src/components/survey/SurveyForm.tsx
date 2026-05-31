@@ -6,7 +6,7 @@ interface SurveyFormProps {
   // Flat list of all questions (kept for backward compatibility)
   questions: QuestionWithOptions[];
   // Optional sections data to render accordion UI
-  sections?: { id: string; title?: string; description?: string; questions: QuestionWithOptions[] }[];
+  sections?: { id: string; title?: string | null; description?: string | null; questions: QuestionWithOptions[] }[];
   onSubmit: (answers: Record<string, any>) => Promise<void>;
   isSubmitting: boolean;
 }
@@ -177,7 +177,7 @@ export function SurveyForm({ questions, sections, onSubmit, isSubmitting }: Surv
       {/* Sections or flat questions */}
       {sections ? (
         sections.map((section) => (
-          <div key={section.id} className="mb-3 sm:mb-4" ref={el => (sectionRefs.current[section.id] = el)}>
+          <div key={section.id} className="mb-3 sm:mb-4" ref={el => { sectionRefs.current[section.id] = el; }}>
             <button
               type="button"
               onClick={() => toggleSection(section.id)}
