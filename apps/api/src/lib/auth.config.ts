@@ -155,22 +155,22 @@ export const nipAuth = betterAuth({
 
 export const prodAuth = betterAuth({
   ...sharedConfig,
-  baseURL: process.env.BETTER_AUTH_URL || "https://anket-api-i3i7.onrender.com",
+  baseURL: "https://anket-api-i3i7.onrender.com",
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      redirectURI: `${process.env.BETTER_AUTH_URL || "https://anket-api-i3i7.onrender.com"}/api/auth/callback/google`,
+      redirectURI: "https://anket-api-i3i7.onrender.com/api/auth/callback/google",
     },
   },
 });
 
 export function getAuth(req: Request) {
-  const origin = req.headers.get("origin") || "";
-  const host = req.headers.get("host") || "";
   if (process.env.NODE_ENV === "production") {
     return prodAuth;
   }
+  const origin = req.headers.get("origin") || "";
+  const host = req.headers.get("host") || "";
   if (origin.includes("nip.io") || host.includes("nip.io")) {
     return nipAuth;
   }
