@@ -85,15 +85,30 @@ export function SurveyForm({ questions, sections, onSubmit, isSubmitting }: Surv
           break;
 
                 case "single_choice":
-        case "dropdown":
-          // Seçenekleri her zaman optionId olarak gönder
-          answer.optionId = value;
+        case "dropdown": {
+          // Custom list kullanıyorsa item.id değil item.value (label) textValue olarak gönder
+          const q = flatQuestions.find((fq) => fq.id === questionId);
+          if (q?.customList && (q.customList.items?.length ?? 0) > 0) {
+            const item = q.customList.items?.find((i) => i.id === value);
+            answer.textValue = item ? item.value : value;
+          } else {
+            answer.optionId = value;
+          }
           break;
+        }
 
         case "multiple_choice": {
-          // Seçenekleri her zaman optionId olarak gönder
-          for (const v of (value as string[])) {
-            answersArray.push({ questionId, optionId: v });
+          // Custom list kullanıyorsa textValue, normal seçeneklerde optionId
+          const qm = flatQuestions.find((fq) => fq.id === questionId);
+          if (qm?.customList && (qm.customList.items?.length ?? 0) > 0) {
+            for (const v of (value as string[])) {
+              const item = qm.customList.items?.find((i) => i.id === v);
+              answersArray.push({ questionId, textValue: item ? item.value : v });
+            }
+          } else {
+            for (const v of (value as string[])) {
+              answersArray.push({ questionId, optionId: v });
+            }
           }
           continue;
         }

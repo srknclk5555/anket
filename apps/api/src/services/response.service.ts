@@ -41,11 +41,11 @@ export class ResponseService {
               )
             )
         ),
-      columns: { id: true, questionType: true },
+      columns: { id: true, questionType: true, customListId: true },
     });
 
     const questionMap = new Map(
-      surveyQuestions.map((q) => [q.id, q.questionType])
+      surveyQuestions.map((q) => [q.id, { type: q.questionType, hasCustomList: !!q.customListId }])
     );
 
     // Validate each answer
@@ -53,13 +53,24 @@ export class ResponseService {
       console.log(`✓ Validating answer for questionId: ${answer.questionId}, optionId: ${answer.optionId}`);
       
       // Check question exists
-      const questionType = questionMap.get(answer.questionId);
-      if (!questionType) {
+      const questionInfo = questionMap.get(answer.questionId);
+      if (!questionInfo) {
         throw new Error("Geçersiz soru ID: soruya erişim yetkiniz yok veya soru silindi");
       }
 
-      // For choice-based questions (radio, checkbox), optionId is REQUIRED
+      const { type: questionType, hasCustomList } = questionInfo;
+
+      // For choice-based questions (radio, checkbox), validate optionId
       if (questionType === "single_choice" || questionType === "multiple_choice") {
+        // Custom list kullanan sorular textValue gönderir, optionId doğrulaması atlanır
+        if (hasCustomList) {
+          if (!answer.textValue) {
+            throw new Error("Özel liste sorusu için bir değer belirtmelisiniz");
+          }
+          console.log(`✅ custom list answer accepted: ${answer.textValue}`);
+          continue;
+        }
+
         if (!answer.optionId) {
           throw new Error("Seçenek sorusu için bir seçenek belirtmelisiniz");
         }
