@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import type { QuestionWithOptions, QuestionType } from "@gorunmeyen-lig/shared";
 import { useTheme } from "@/contexts/ThemeContext";
 import { QuestionRenderer } from "./QuestionRenderer";
+import { GoalAnimation } from "./GoalAnimation";
 
 interface SurveyFormProps {
   // Flat list of all questions (kept for backward compatibility)
@@ -10,15 +11,18 @@ interface SurveyFormProps {
   sections?: { id: string; title?: string | null; description?: string | null; questions: QuestionWithOptions[] }[];
   onSubmit: (answers: Record<string, any>) => Promise<void>;
   isSubmitting: boolean;
+  onSuccess?: () => void;
   onProgressChange?: (progress: number, answered: number, total: number) => void;
 }
 
-export function SurveyForm({ questions, sections, onSubmit, isSubmitting, onProgressChange }: SurveyFormProps) {
+export function SurveyForm({ questions, sections, onSubmit, isSubmitting, onSuccess, onProgressChange }: SurveyFormProps) {
   const { theme } = useTheme();
+  const isStadium = theme === "stadium";
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [formOpenedAt] = useState(Date.now());
   const [openSectionIds, setOpenSectionIds] = useState<string[]>([]);
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
+  const [isGoal, setIsGoal] = useState(false);
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const handleAnswerChange = (questionId: string, value: any) => {
@@ -81,6 +85,7 @@ export function SurveyForm({ questions, sections, onSubmit, isSubmitting, onProg
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isGoal || isSubmitting) return;
 
     // Build answers array for API
     const answersArray: any[] = [];
@@ -140,12 +145,20 @@ export function SurveyForm({ questions, sections, onSubmit, isSubmitting, onProg
       answersArray.push(answer);
     }
 
-    await onSubmit({
-      turnstileToken: "placeholder", // Will be replaced with actual Turnstile token
-      answers: answersArray,
-      formOpenedAt,
-      honeypot: "", // Hidden field — bots will fill this
-    });
+    try {
+      await onSubmit({
+        turnstileToken: "placeholder", // Will be replaced with actual Turnstile token
+        answers: answersArray,
+        formOpenedAt,
+        honeypot: "", // Hidden field — bots will fill this
+      });
+      setIsGoal(true);
+      window.setTimeout(() => {
+        onSuccess?.();
+      }, 2500);
+    } catch {
+      // Let parent show errors if submission fails.
+    }
   };
 
   const requiredQuestions = flatQuestions.filter((q) => q.isRequired);
@@ -169,7 +182,9 @@ export function SurveyForm({ questions, sections, onSubmit, isSubmitting, onProg
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-8 pt-4">
+    <>
+      <GoalAnimation isOpen={isGoal} isStadium={isStadium} />
+      <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-8 pt-4">
       {/* Honeypot — hidden from real users */}
       <input
         type="text"
@@ -179,17 +194,6 @@ export function SurveyForm({ questions, sections, onSubmit, isSubmitting, onProg
         autoComplete="off"
       />
 
-      {/* Progress bar */}
-      <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
-        <div
-          className={`rounded-full h-2 transition-all duration-300 ${theme === "stadium" ? "bg-[linear-gradient(90deg,_#16a34a,_#22c55e)]" : "bg-primary"}`}
-          style={{ width: `${progress}%` }}
-        />
-      </div>
-      <p className="text-xs sm:text-sm text-muted-foreground">
-        İlerleme: {answeredRequired.length}/{requiredQuestions.length} zorunlu soru
-      </p>
-
       {/* Sections or flat questions */}
       {sections ? (
         sections.map((section) => (
@@ -197,10 +201,15 @@ export function SurveyForm({ questions, sections, onSubmit, isSubmitting, onProg
             <button
               type="button"
               onClick={() => toggleSection(section.id)}
-              className={`w-full flex justify-between items-center p-3 sm:p-4 border rounded-md text-left text-sm sm:text-base ${theme === "stadium" ? "border-[#334155] bg-[#1e3a5f] text-white" : completedSections.has(section.id) ? "border-border bg-green-200" : "border-border bg-card"}`}
+              className={`w-full flex justify-between items-center p-3 sm:p-4 border rounded-md text-left text-sm sm:text-base transition-all ${theme === "stadium" ? "border-[#334155] bg-gradient-to-r from-[#12263b] via-[#1e3a5f] to-[#0c2033] text-white shadow-[0_8px_25px_-18px_rgba(0,0,0,0.8)] hover:border-green-400" : completedSections.has(section.id) ? "border-border bg-green-200" : "border-border bg-card"}`}
             >
-              <span className="font-medium text-foreground">
-                {section.title ?? "Bölüm"}
+              <span className="flex items-center gap-3">
+                {theme === "stadium" && (
+                  <span className="inline-flex h-10 w-1 rounded-full bg-gradient-to-b from-emerald-400 to-lime-500" />
+                )}
+                <span className="font-medium text-foreground">
+                  {theme === "stadium" ? `⚽ ${section.title ?? "Bölüm"}` : section.title ?? "Bölüm"}
+                </span>
               </span>
               <span>{openSectionIds.includes(section.id) ? "▲" : "▼"}</span>
             </button>
@@ -212,7 +221,7 @@ export function SurveyForm({ questions, sections, onSubmit, isSubmitting, onProg
                   </p>
                 )}
                 {section.questions.map((question, index) => (
-                  <div key={question.id} className="bg-card border border-border rounded-lg p-3 sm:p-6">
+                  <div key={question.id} className={`rounded-lg p-3 sm:p-6 transition-all ${theme === "stadium" ? "bg-[#152237] border border-[#1e3a5f] shadow-[0_0_0_1px_rgba(22,163,74,0.15)] hover:shadow-[0_0_0_15px_rgba(22,163,74,0.14)]" : "bg-card border border-border"}`}>
                     <QuestionRenderer
                       question={question}
                       index={index}
@@ -228,7 +237,7 @@ export function SurveyForm({ questions, sections, onSubmit, isSubmitting, onProg
       ) : (
         // Fallback to flat list if sections prop not provided
         questions.map((question, index) => (
-          <div key={question.id} className="bg-card border border-border rounded-lg p-3 sm:p-6">
+          <div key={question.id} className={`rounded-lg p-3 sm:p-6 transition-all ${theme === "stadium" ? "bg-[#152237] border border-[#1e3a5f] shadow-[0_0_0_1px_rgba(22,163,74,0.15)] hover:shadow-[0_0_0_15px_rgba(22,163,74,0.14)]" : "bg-card border border-border"}`}>
             <QuestionRenderer
               question={question}
               index={index}
@@ -243,12 +252,13 @@ export function SurveyForm({ questions, sections, onSubmit, isSubmitting, onProg
       <div className="bg-background pt-3 pb-4 sm:pt-0 sm:pb-0">
         <button
           type="submit"
-          disabled={isSubmitting || progress < 100}
+          disabled={isSubmitting || isGoal || progress < 100}
           className="w-full py-3 px-6 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
         >
-          {isSubmitting ? "Gönderiliyor..." : "Anketi Gönder"}
+          {isGoal ? "Gol atılıyor..." : isSubmitting ? "Gönderiliyor..." : "Anketi Gönder"}
         </button>
       </div>
     </form>
+  </>
   );
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useSurvey } from "@/hooks/useSurvey";
@@ -17,6 +17,19 @@ export default function SurveyPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [alreadyResponded, setAlreadyResponded] = useState(false);
   const [progressState, setProgressState] = useState({ progress: 0, answered: 0, total: 0 });
+
+  const handleSurveySuccess = useCallback(() => {
+    navigate(`/survey/${id}/thank-you`, { replace: true });
+  }, [navigate, id]);
+
+  const handleProgressChange = useCallback((progress: number, answered: number, total: number) => {
+    setProgressState((prev) => {
+      if (prev.progress === progress && prev.answered === answered && prev.total === total) {
+        return prev;
+      }
+      return { progress, answered, total };
+    });
+  }, []);
 
   useEffect(() => {
     if (!id || !isAuthenticated) return;
@@ -102,13 +115,13 @@ export default function SurveyPage() {
 
     try {
       await api.post(`/api/surveys/${id}/responses`, answers);
-      navigate(`/survey/${id}/thank-you`, { replace: true });
     } catch (err: any) {
       const msg = err.message || "Bir hata oluştu";
       if (msg.includes("zaten") || msg.includes("already")) {
         setAlreadyResponded(true);
       }
       setSubmitError(msg);
+      throw err;
     } finally {
       setIsSubmitting(false);
     }
@@ -151,7 +164,7 @@ export default function SurveyPage() {
             <button
               type="button"
               onClick={toggleTheme}
-              className="inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm font-medium text-foreground transition hover:bg-secondary"
+              className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition ${theme === "stadium" ? "border-transparent bg-gradient-to-r from-emerald-500 to-lime-400 text-slate-950 shadow-[0_10px_25px_-20px_rgba(22,163,74,0.9)] hover:scale-[1.02]" : "border border-border bg-background text-foreground hover:bg-secondary"}`}
             >
               {theme === "stadium" ? "☀️ Klasik" : "🌙 Stadyum"}
             </button>
@@ -161,7 +174,7 @@ export default function SurveyPage() {
       </header>
 
       <main className="max-w-3xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
-        <div className="sticky top-16 z-10 bg-background shadow-sm pb-3 pt-3 border-b border-border mb-6 sm:mb-8">
+        <div className={`sticky top-16 z-10 shadow-sm pb-3 pt-3 border-b mb-6 sm:mb-8 ${theme === "stadium" ? "bg-[#061522] border-[#13455d]" : "bg-background border-border"}`}>
           <div className="mb-3 sm:mb-4">
             <h1 className="text-xl sm:text-2xl font-bold text-foreground">{survey.title}</h1>
             {survey.description && (
@@ -176,7 +189,7 @@ export default function SurveyPage() {
             />
           </div>
           <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
-            İlerleme: {progressState.answered}/{progressState.total} zorunlu soru
+            %{progressState.progress} tamamlandı · {progressState.answered}/{progressState.total} zorunlu soru
           </p>
         </div>
 
@@ -191,9 +204,8 @@ export default function SurveyPage() {
           sections={survey.sections}
           onSubmit={handleSubmit}
           isSubmitting={isSubmitting}
-          onProgressChange={(progress, answered, total) =>
-            setProgressState({ progress, answered, total })
-          }
+          onSuccess={handleSurveySuccess}
+          onProgressChange={handleProgressChange}
         />
       </main>
     </div>

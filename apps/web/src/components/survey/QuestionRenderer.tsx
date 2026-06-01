@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import type { QuestionWithOptions, QuestionType } from "@gorunmeyen-lig/shared";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface QuestionRendererProps {
   question: QuestionWithOptions;
@@ -9,8 +10,11 @@ interface QuestionRendererProps {
 }
 
 export function QuestionRenderer({ question, index, value, onChange }: QuestionRendererProps) {
+  const { theme } = useTheme();
+  const isStadium = theme === "stadium";
+
   return (
-    <div className="space-y-3">
+    <div className={`space-y-3 rounded-2xl border p-4 transition ${isStadium ? "bg-slate-950/40 border-slate-700 shadow-[0_10px_60px_-45px_rgba(15,23,42,0.8)]" : ""}`}>
       <div className="flex items-start gap-2">
         <span className="text-sm font-medium text-muted-foreground min-w-[24px]">{index + 1}.</span>
         <div className="flex-1">
@@ -25,13 +29,13 @@ export function QuestionRenderer({ question, index, value, onChange }: QuestionR
       </div>
 
       <div className="ml-8">
-        {renderInput(question, value, onChange)}
+        {renderInput(question, value, onChange, isStadium)}
       </div>
     </div>
   );
 }
 
-function renderInput(question: QuestionWithOptions, value: any, onChange: (v: any) => void) {
+function renderInput(question: QuestionWithOptions, value: any, onChange: (v: any) => void, isStadium: boolean) {
   switch (question.questionType) {
 
     // ─── Kısa Metin ───────────────────────────────────────────────
@@ -68,7 +72,7 @@ function renderInput(question: QuestionWithOptions, value: any, onChange: (v: an
         return (
           <div className="space-y-2">
             {singleItems.map((item) => (
-              <label key={item.id} className="flex items-center gap-3 cursor-pointer group">
+              <label key={item.id} className={`flex items-center gap-3 cursor-pointer group rounded-xl px-3 py-2 transition ${isStadium ? "bg-slate-950/5 border border-slate-700 hover:border-emerald-300" : ""}`}>
                 <input
                   type="radio"
                   name={`question-${question.id}`}
@@ -77,7 +81,7 @@ function renderInput(question: QuestionWithOptions, value: any, onChange: (v: an
                   onChange={() => onChange(item.id)}
                   className="w-4 h-4 text-primary focus:ring-ring"
                 />
-                <span className="text-sm text-foreground group-hover:text-primary transition-colors">{item.value}</span>
+                <span className={`text-sm font-medium transition ${isStadium ? "text-slate-100 group-hover:text-emerald-200" : "text-foreground group-hover:text-primary"}`}>{item.value}</span>
               </label>
             ))}
           </div>
@@ -89,7 +93,7 @@ function renderInput(question: QuestionWithOptions, value: any, onChange: (v: an
       return (
         <div className="space-y-2">
           {singleOptions.map((option) => (
-            <label key={option.id} className="flex items-center gap-3 cursor-pointer group">
+            <label key={option.id} className={`flex items-center gap-3 cursor-pointer group rounded-xl px-3 py-2 transition ${isStadium ? "bg-slate-950/5 border border-slate-700 hover:border-emerald-300" : ""}`}>
               <input
                 type="radio"
                 name={`question-${question.id}`}
@@ -98,7 +102,7 @@ function renderInput(question: QuestionWithOptions, value: any, onChange: (v: an
                 onChange={() => onChange(option.id)}
                 className="w-4 h-4 text-primary focus:ring-ring"
               />
-              <span className="text-sm text-foreground group-hover:text-primary transition-colors">{option.label}</span>
+              <span className={`text-sm font-medium transition ${isStadium ? "text-slate-100 group-hover:text-emerald-200" : "text-foreground group-hover:text-primary"}`}>{option.label}</span>
             </label>
           ))}
         </div>
@@ -115,7 +119,7 @@ function renderInput(question: QuestionWithOptions, value: any, onChange: (v: an
         return (
           <div className="space-y-2">
             {multiItems.map((item) => (
-              <label key={item.id} className="flex items-center gap-3 cursor-pointer group">
+              <label key={item.id} className={`flex items-center gap-3 cursor-pointer group rounded-xl px-3 py-2 transition ${isStadium ? "bg-slate-950/5 border border-slate-700 hover:border-emerald-300" : ""}`}>
                 <input
                   type="checkbox"
                   value={item.id}
@@ -128,7 +132,7 @@ function renderInput(question: QuestionWithOptions, value: any, onChange: (v: an
                   }}
                   className="w-4 h-4 text-primary focus:ring-ring rounded"
                 />
-                <span className="text-sm text-foreground group-hover:text-primary transition-colors">{item.value}</span>
+                <span className={`text-sm font-medium transition ${isStadium ? "text-slate-100 group-hover:text-emerald-200" : "text-foreground group-hover:text-primary"}`}>{item.value}</span>
               </label>
             ))}
           </div>
@@ -140,7 +144,7 @@ function renderInput(question: QuestionWithOptions, value: any, onChange: (v: an
       return (
         <div className="space-y-2">
           {multiOptions.map((option) => (
-            <label key={option.id} className="flex items-center gap-3 cursor-pointer group">
+            <label key={option.id} className={`flex items-center gap-3 cursor-pointer group rounded-xl px-3 py-2 transition ${isStadium ? "bg-slate-950/5 border border-slate-700 hover:border-emerald-300" : ""}`}>
               <input
                 type="checkbox"
                 value={option.id}
@@ -153,7 +157,7 @@ function renderInput(question: QuestionWithOptions, value: any, onChange: (v: an
                 }}
                 className="w-4 h-4 text-primary focus:ring-ring rounded"
               />
-              <span className="text-sm text-foreground group-hover:text-primary transition-colors">{option.label}</span>
+              <span className={`text-sm font-medium transition ${isStadium ? "text-slate-100 group-hover:text-emerald-200" : "text-foreground group-hover:text-primary"}`}>{option.label}</span>
             </label>
           ))}
         </div>
@@ -169,7 +173,7 @@ function renderInput(question: QuestionWithOptions, value: any, onChange: (v: an
           <select
             value={value || ""}
             onChange={(e) => onChange(e.target.value)}
-            className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-ring"
+            className={`w-full px-3 py-2 border rounded-md bg-background text-foreground focus:ring-2 focus:ring-ring transition ${isStadium ? "border-slate-700 shadow-[inset_0_0_0_1px_rgba(148,163,184,0.2)] hover:border-emerald-300" : "border-input"}`}
           >
             <option value="">Seçiniz...</option>
             {ddItems.map((item) => (
@@ -185,7 +189,7 @@ function renderInput(question: QuestionWithOptions, value: any, onChange: (v: an
         <select
           value={value || ""}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-ring"
+          className={`w-full px-3 py-2 border rounded-md bg-background text-foreground focus:ring-2 focus:ring-ring transition ${isStadium ? "border-slate-700 shadow-[inset_0_0_0_1px_rgba(148,163,184,0.2)] hover:border-emerald-300" : "border-input"}`}
         >
           <option value="">Seçiniz...</option>
           {ddOptions.map((option) => (
@@ -228,8 +232,12 @@ function renderInput(question: QuestionWithOptions, value: any, onChange: (v: an
                   onClick={() => onChange(num)}
                   className={`w-8 h-8 rounded-full border-2 transition-all flex items-center justify-center text-sm font-medium ${
                     value === num
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-background hover:border-primary/50 hover:bg-primary/5 text-foreground"
+                      ? isStadium
+                        ? "border-emerald-400 bg-emerald-500 text-slate-950 shadow-[0_0_0_6px_rgba(16,185,129,0.1)]"
+                        : "border-primary bg-primary text-primary-foreground"
+                      : isStadium
+                        ? "border-slate-700 bg-slate-950 text-slate-200 hover:border-emerald-300 hover:bg-slate-800"
+                        : "border-border bg-background hover:border-primary/50 hover:bg-primary/5 text-foreground"
                   }`}
                 >
                   {value === num ? "✓" : ""}
@@ -287,8 +295,12 @@ function renderInput(question: QuestionWithOptions, value: any, onChange: (v: an
             onClick={() => onChange(value === "yes" ? null : "yes")}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-lg border-2 transition-all font-medium text-sm ${
               value === "yes"
-                ? "border-green-500 bg-green-50 text-green-700"
-                : "border-border bg-background text-foreground hover:border-green-300 hover:bg-green-50/50"
+                ? isStadium
+                  ? "border-emerald-400 bg-emerald-500 text-slate-950 shadow-[0_8px_30px_-20px_rgba(16,185,129,0.9)]"
+                  : "border-green-500 bg-green-50 text-green-700"
+                : isStadium
+                  ? "border-slate-700 bg-slate-950 text-slate-200 hover:border-emerald-300 hover:bg-slate-900"
+                  : "border-border bg-background text-foreground hover:border-green-300 hover:bg-green-50/50"
             }`}
           >
             <span className="text-lg">✓</span> Evet
@@ -298,8 +310,12 @@ function renderInput(question: QuestionWithOptions, value: any, onChange: (v: an
             onClick={() => onChange(value === "no" ? null : "no")}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-lg border-2 transition-all font-medium text-sm ${
               value === "no"
-                ? "border-red-500 bg-red-50 text-red-700"
-                : "border-border bg-background text-foreground hover:border-red-300 hover:bg-red-50/50"
+                ? isStadium
+                  ? "border-rose-500 bg-rose-500/15 text-rose-100 shadow-[0_8px_30px_-20px_rgba(244,63,94,0.8)]"
+                  : "border-red-500 bg-red-50 text-red-700"
+                : isStadium
+                  ? "border-slate-700 bg-slate-950 text-slate-200 hover:border-rose-300 hover:bg-slate-900"
+                  : "border-border bg-background text-foreground hover:border-red-300 hover:bg-red-50/50"
             }`}
           >
             <span className="text-lg">✗</span> Hayır
