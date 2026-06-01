@@ -1,5 +1,5 @@
 import { db } from "../db/index.js";
-import { responses, answerValues, questions, questionOptions, sections } from "../db/schema.js";
+import { responses, answerValues, questions, questionOptions, sections, customListItems } from "../db/schema.js";
 import { eq, and, desc, sql } from "drizzle-orm";
 
 export class ResponseService {
@@ -58,24 +58,41 @@ export class ResponseService {
         throw new Error("Geçersiz soru ID: soruya erişim yetkiniz yok veya soru silindi");
       }
 
-      const { type: questionType, hasCustomList } = questionInfo;
+      const { type: questionType, hasCustomList, customListId } = questionInfo;
+      const choiceTypes = new Set([
+        "single_choice",
+        "multiple_choice",
+        "dropdown",
+        "searchable_dropdown",
+        "searchable_list",
+      ]);
 
-      // For choice-based questions (radio, checkbox), validate optionId
-      if (questionType === "single_choice" || questionType === "multiple_choice") {
-        // Custom list kullanan sorular textValue gönderir, optionId doğrulaması atlanır
-        if (hasCustomList) {
-          if (!answer.textValue) {
-            throw new Error("Özel liste sorusu için bir değer belirtmelisiniz");
-          }
-          console.log(`✅ custom list answer accepted: ${answer.textValue}`);
-          continue;
-        }
-
+      if (choiceTypes.has(questionType)) {
         if (!answer.optionId) {
           throw new Error("Seçenek sorusu için bir seçenek belirtmelisiniz");
         }
 
-        // Verify optionId belongs to this question
+        if (hasCustomList && customListId) {
+          const validItem = await db.query.customListItems.findFirst({
+            where: and(
+              eq(customListItems.id, answer.optionId),
+              eq(customListItems.listId, customListId)
+            ),
+            columns: { id: true, value: true },
+          });
+
+          if (!validItem) {
+            console.log(`❌ TAMPERING DETECTED: custom list item "${answer.optionId}" not found for questionId "${answer.questionId}"`);
+            throw new Error(
+              "Geçersiz seçenek ID: seçeneğe erişim yetkiniz yok veya seçenek silindi"
+            );
+          }
+
+          answer.textValue = validItem.value;
+          console.log(`✅ custom list item verified: ${answer.optionId}`);
+          continue;
+        }
+
         const validOption = await db.query.questionOptions.findFirst({
           where: and(
             eq(questionOptions.id, answer.optionId),
@@ -92,7 +109,6 @@ export class ResponseService {
         }
         console.log(`✅ optionId verified: ${answer.optionId}`);
       } else {
-        // For non-choice questions, optionId should NOT be present
         if (answer.optionId) {
           throw new Error(
             "Bu soru tipi için seçenek belirtilmemelidir"

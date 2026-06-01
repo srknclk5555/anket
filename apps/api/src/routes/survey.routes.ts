@@ -100,6 +100,7 @@ surveyRoutes.post(
         message.includes("Geçersiz soru ID") ||
         message.includes("Geçersiz seçenek ID") ||
         message.includes("Seçenek sorusu için") ||
+        message.includes("Özel liste sorusu için") ||
         message.includes("soru tipi için") ||
         message.includes("erişim yetkiniz yok")
       ) {

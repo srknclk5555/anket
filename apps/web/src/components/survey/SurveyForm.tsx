@@ -86,29 +86,13 @@ export function SurveyForm({ questions, sections, onSubmit, isSubmitting }: Surv
 
                 case "single_choice":
         case "dropdown": {
-          // Custom list kullanıyorsa item.id değil item.value (label) textValue olarak gönder
-          const q = flatQuestions.find((fq) => fq.id === questionId);
-          if (q?.customList && (q.customList.items?.length ?? 0) > 0) {
-            const item = q.customList.items?.find((i) => i.id === value);
-            answer.textValue = item ? item.value : value;
-          } else {
-            answer.optionId = value;
-          }
+          answer.optionId = value;
           break;
         }
 
         case "multiple_choice": {
-          // Custom list kullanıyorsa textValue, normal seçeneklerde optionId
-          const qm = flatQuestions.find((fq) => fq.id === questionId);
-          if (qm?.customList && (qm.customList.items?.length ?? 0) > 0) {
-            for (const v of (value as string[])) {
-              const item = qm.customList.items?.find((i) => i.id === v);
-              answersArray.push({ questionId, textValue: item ? item.value : v });
-            }
-          } else {
-            for (const v of (value as string[])) {
-              answersArray.push({ questionId, optionId: v });
-            }
+          for (const v of (value as string[])) {
+            answersArray.push({ questionId, optionId: v });
           }
           continue;
         }
@@ -120,13 +104,8 @@ export function SurveyForm({ questions, sections, onSubmit, isSubmitting }: Surv
           break;
 
         case "ranking": {
-          const rankHasCustomList = question.customList && question.customList.items && question.customList.items.length > 0;
           for (let i = 0; i < (value as string[]).length; i++) {
-            if (rankHasCustomList) {
-              answersArray.push({ questionId, textValue: value[i], rankValue: i + 1 });
-            } else {
-              answersArray.push({ questionId, optionId: value[i], rankValue: i + 1 });
-            }
+            answersArray.push({ questionId, optionId: value[i], rankValue: i + 1 });
           }
           continue;
         }

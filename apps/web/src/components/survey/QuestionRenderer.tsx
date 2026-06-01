@@ -345,7 +345,7 @@ function renderInput(question: QuestionWithOptions, value: any, onChange: (v: an
       const rankOptions = question.options || [];
       const rankSource: { id: string; label: string }[] =
         rankItems.length > 0
-          ? rankItems.map(i => ({ id: i.value, label: i.value }))
+          ? rankItems.map(i => ({ id: i.id, label: i.value }))
           : rankOptions.map(o => ({ id: o.id, label: o.label }));
 
       if (rankSource.length === 0) {
@@ -540,7 +540,7 @@ function SearchableSelect({
       {selectedValues.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-2">
           {selectedValues.map((val) => {
-            const item = items.find((i) => i.value === val);
+            const item = items.find((i) => i.id === val);
             const display = item ? item.value : val;
             return (
               <div key={val} className="flex items-center gap-1 bg-primary/10 text-primary px-2 py-1 rounded-md text-sm">
@@ -575,11 +575,11 @@ function SearchableSelect({
             <div className="p-3 text-sm text-muted-foreground text-center">Sonuç bulunamadı.</div>
           ) : (
             filtered.map((item) => {
-              const isSelected = selectedValues.includes(item.value);
+              const isSelected = selectedValues.includes(item.id);
               return (
                 <div
                   key={item.id}
-                  onClick={() => toggleSelection(item.value)}
+                  onClick={() => toggleSelection(item.id)}
                   className={`px-3 py-2 cursor-pointer text-sm hover:bg-muted ${isSelected ? "bg-primary/5 font-medium text-primary" : ""}`}
                 >
                   {item.value}
