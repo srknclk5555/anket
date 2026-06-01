@@ -132,9 +132,27 @@ adminRoutes.patch("/sections/:id", adminOnly, validateBody(sectionPayloadSchema)
   return c.json({ section });
 });
 
+// PATCH /api/admin/surveys/:id/sections/:sectionId
+adminRoutes.patch("/surveys/:id/sections/:sectionId", adminOnly, validateBody(sectionPayloadSchema), async (c) => {
+  const sectionId = c.req.param("sectionId");
+  if (!sectionId) return c.json({ error: "Geçersiz ID" }, 400);
+  const body = c.get("parsedBody") as { title: string; description?: string };
+  const section = await SurveyService.updateSection(sectionId, body);
+  if (!section) return c.json({ error: "Bölüm bulunamadı" }, 404);
+  return c.json({ section });
+});
+
 // DELETE /api/admin/sections/:id
 adminRoutes.delete("/sections/:id", adminOnly, async (c) => {
   const sectionId = c.req.param("id");
+  if (!sectionId) return c.json({ error: "Geçersiz ID" }, 400);
+  await SurveyService.deleteSection(sectionId);
+  return c.json({ message: "Bölüm silindi" });
+});
+
+// DELETE /api/admin/surveys/:id/sections/:sectionId
+adminRoutes.delete("/surveys/:id/sections/:sectionId", adminOnly, async (c) => {
+  const sectionId = c.req.param("sectionId");
   if (!sectionId) return c.json({ error: "Geçersiz ID" }, 400);
   await SurveyService.deleteSection(sectionId);
   return c.json({ message: "Bölüm silindi" });
