@@ -12,13 +12,22 @@ import {
 
 const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase();
 const isProduction = process.env.NODE_ENV === "production";
-const secureCookieMode = isProduction || (process.env.BETTER_AUTH_URL?.startsWith("https://") ?? false);
+
+// Ensure BETTER_AUTH_URL has a protocol
+const ensureProtocol = (url?: string) => {
+  if (!url) return undefined;
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  return `https://${url}`;
+};
+
+const betterAuthUrl = ensureProtocol(process.env.BETTER_AUTH_URL);
+const secureCookieMode = isProduction || (betterAuthUrl?.startsWith("https://") ?? false);
 const trustedOrigins = [
   "https://anket-web.pages.dev",
   "https://a238bb65.anket-web.pages.dev",
   process.env.FRONTEND_URL,
   process.env.CALLBACK_URL,
-  process.env.BETTER_AUTH_URL,
+  betterAuthUrl,
 ].filter(Boolean) as string[];
 
 /* ------------------------------------------------------------------ */
@@ -155,7 +164,7 @@ export const nipAuth = betterAuth({
 
 export const prodAuth = betterAuth({
   ...sharedConfig,
-  baseURL: "https://anket-api-i3i7.onrender.com",
+  baseURL: betterAuthUrl || "https://sanaltribun.com",
   advanced: {
     ...sharedConfig.advanced,
     useSecureCookies: true,
@@ -165,9 +174,6 @@ export const prodAuth = betterAuth({
     defaultCookieAttributes: {
       sameSite: "none",
       secure: true,
-      // partitioned: true kaldırıldı — cross-origin fetch ile başlayan OAuth flow'da
-      // partition key sign-in (pages.dev) ile callback (render.com) arasında
-      // farklılaştığı için state_mismatch hatasına yol açıyordu.
     },
     database: {
       generateId: () => randomUUID(),
@@ -177,7 +183,7 @@ export const prodAuth = betterAuth({
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      redirectURI: "https://anket-api-i3i7.onrender.com/api/auth/callback/google",
+      redirectURI: `${betterAuthUrl || "https://sanaltribun.com"}/api/auth/callback/google`,
     },
   },
 });

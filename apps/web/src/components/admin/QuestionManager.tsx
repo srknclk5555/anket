@@ -59,6 +59,8 @@ export function QuestionManager({
   const [newType, setNewType] = useState<QuestionType>("short_text");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
+  const [editingTypeId, setEditingTypeId] = useState<string | null>(null);
+  const [editType, setEditType] = useState<QuestionType>("short_text");
   const [newCustomListId, setNewCustomListId] = useState<string>("");
   const [newScaleMin, setNewScaleMin] = useState(1);
   const [newScaleMax, setNewScaleMax] = useState(5);
@@ -128,6 +130,23 @@ export function QuestionManager({
     if (!editTitle.trim()) return;
     onUpdateQuestion(questionId, { title: editTitle.trim() } as Partial<QuestionWithOptions>);
     setEditingId(null);
+  };
+
+  const handleStartEditType = (q: QuestionWithOptions) => {
+    setEditingTypeId(q.id);
+    setEditType(q.questionType);
+  };
+
+  const handleSaveEditType = async (questionId: string) => {
+    if (editType === "") return;
+    try {
+      await api.patch(`/api/admin/questions/${questionId}`, { questionType: editType });
+      onUpdateQuestion(questionId, { questionType: editType } as Partial<QuestionWithOptions>);
+      setEditingTypeId(null);
+    } catch (err) {
+      console.error("Soru tipi güncellenemedi", err);
+      alert("Soru tipi güncellenemedi");
+    }
   };
 
   const handleDragStart = (index: number) => setDragIndex(index);
@@ -426,6 +445,13 @@ export function QuestionManager({
                 <button onClick={() => handleStartEdit(question)} className="text-xs px-2 py-1 border border-border rounded hover:bg-muted">
                   Düzenle
                 </button>
+                <button 
+                  onClick={() => handleStartEditType(question)} 
+                  className="text-xs px-2 py-1 border border-border rounded hover:bg-muted"
+                  title="Soru türünü değiştir"
+                >
+                  Tür
+                </button>
                 {(isOptionBased || isMatrix) && (
                   <button
                     onClick={() => toggleOptionsPanel(question.id)}
@@ -458,6 +484,36 @@ export function QuestionManager({
                 </button>
               </div>
             </div>
+
+            {/* ── Soru Türü Düzenle Panel ── */}
+            {editingTypeId === question.id && (
+              <div className="border-t border-primary/30 bg-primary/5 px-4 py-3 space-y-2">
+                <p className="text-xs font-medium text-muted-foreground mb-2">Soru Türünü Değiştir</p>
+                <select
+                  value={editType}
+                  onChange={(e) => setEditType(e.target.value as QuestionType)}
+                  className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground text-sm"
+                >
+                  {Object.entries(QUESTION_TYPE_LABELS).map(([key, label]) => (
+                    <option key={key} value={key}>{label}</option>
+                  ))}
+                </select>
+                <div className="flex gap-2 pt-2">
+                  <button
+                    onClick={() => handleSaveEditType(question.id)}
+                    className="text-xs px-3 py-1.5 bg-primary text-primary-foreground rounded hover:bg-primary/90"
+                  >
+                    Kaydet
+                  </button>
+                  <button
+                    onClick={() => setEditingTypeId(null)}
+                    className="text-xs px-3 py-1.5 border border-border rounded hover:bg-muted"
+                  >
+                    İptal
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* ── Genişletilmiş Panel ── */}
             {isExpanded && (

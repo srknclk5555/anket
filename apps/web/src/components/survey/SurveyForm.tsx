@@ -108,12 +108,14 @@ export function SurveyForm({ questions, sections, onSubmit, isSubmitting, onSucc
           break;
 
                 case "single_choice":
-        case "dropdown": {
+        case "dropdown":
+        case "searchable_dropdown": {
           answer.optionId = value;
           break;
         }
 
-        case "multiple_choice": {
+        case "multiple_choice":
+        case "searchable_list": {
           for (const v of (value as string[])) {
             answersArray.push({ questionId, optionId: v });
           }
@@ -196,44 +198,51 @@ export function SurveyForm({ questions, sections, onSubmit, isSubmitting, onSucc
 
       {/* Sections or flat questions */}
       {sections ? (
-        sections.map((section) => (
-          <div key={section.id} className="mb-3 sm:mb-4" ref={el => { sectionRefs.current[section.id] = el; }}>
-            <button
-              type="button"
-              onClick={() => toggleSection(section.id)}
-              className={`w-full flex justify-between items-center p-3 sm:p-4 border rounded-md text-left text-sm sm:text-base transition-all ${theme === "stadium" ? "border-[#334155] bg-gradient-to-r from-[#12263b] via-[#1e3a5f] to-[#0c2033] text-white shadow-[0_8px_25px_-18px_rgba(0,0,0,0.8)] hover:border-green-400" : completedSections.has(section.id) ? "border-border bg-green-200" : "border-border bg-card"}`}
-            >
-              <span className="flex items-center gap-3">
-                {theme === "stadium" && (
-                  <span className="inline-flex h-10 w-1 rounded-full bg-gradient-to-b from-emerald-400 to-lime-500" />
-                )}
-                <span className="font-medium text-foreground">
-                  {theme === "stadium" ? `⚽ ${section.title ?? "Bölüm"}` : section.title ?? "Bölüm"}
+        sections.map((section, sectionIndex) => {
+          // Calculate the starting question number for this section
+          const questionsBeforeThisSection = sections
+            .slice(0, sectionIndex)
+            .reduce((total, s) => total + s.questions.length, 0);
+
+          return (
+            <div key={section.id} className="mb-3 sm:mb-4" ref={el => { sectionRefs.current[section.id] = el; }}>
+              <button
+                type="button"
+                onClick={() => toggleSection(section.id)}
+                className={`w-full flex justify-between items-center p-3 sm:p-4 border rounded-md text-left text-sm sm:text-base transition-all ${theme === "stadium" ? "border-[#334155] bg-gradient-to-r from-[#12263b] via-[#1e3a5f] to-[#0c2033] text-white shadow-[0_8px_25px_-18px_rgba(0,0,0,0.8)] hover:border-green-400" : completedSections.has(section.id) ? "border-border bg-green-200" : "border-border bg-card"}`}
+              >
+                <span className="flex items-center gap-3">
+                  {theme === "stadium" && (
+                    <span className="inline-flex h-10 w-1 rounded-full bg-gradient-to-b from-emerald-400 to-lime-500" />
+                  )}
+                  <span className="font-medium text-foreground">
+                    {theme === "stadium" ? `⚽ ${section.title ?? "Bölüm"}` : section.title ?? "Bölüm"}
+                  </span>
                 </span>
-              </span>
-              <span>{openSectionIds.includes(section.id) ? "▲" : "▼"}</span>
-            </button>
-            {openSectionIds.includes(section.id) && (
-              <div className="mt-2 space-y-3 sm:space-y-4">
-                {section.description && (
-                  <p className="text-muted-foreground text-sm mb-2">
-                    {section.description}
-                  </p>
-                )}
-                {section.questions.map((question, index) => (
-                  <div key={question.id} className={`rounded-lg p-3 sm:p-6 transition-all ${theme === "stadium" ? "bg-[#152237] border border-[#1e3a5f] shadow-[0_0_0_1px_rgba(22,163,74,0.15)] hover:shadow-[0_0_0_15px_rgba(22,163,74,0.14)]" : "bg-card border border-border"}`}>
-                    <QuestionRenderer
-                      question={question}
-                      index={index}
-                      value={answers[question.id]}
-                      onChange={(value) => handleAnswerChange(question.id, value)}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        ))
+                <span>{openSectionIds.includes(section.id) ? "▲" : "▼"}</span>
+              </button>
+              {openSectionIds.includes(section.id) && (
+                <div className="mt-2 space-y-3 sm:space-y-4">
+                  {section.description && (
+                    <p className="text-muted-foreground text-sm mb-2">
+                      {section.description}
+                    </p>
+                  )}
+                  {section.questions.map((question, index) => (
+                    <div key={question.id} className={`rounded-lg p-3 sm:p-6 transition-all ${theme === "stadium" ? "bg-[#152237] border border-[#1e3a5f] shadow-[0_0_0_1px_rgba(22,163,74,0.15)] hover:shadow-[0_0_0_15px_rgba(22,163,74,0.14)]" : "bg-card border border-border"}`}>
+                      <QuestionRenderer
+                        question={question}
+                        index={questionsBeforeThisSection + index}
+                        value={answers[question.id]}
+                        onChange={(value) => handleAnswerChange(question.id, value)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })
       ) : (
         // Fallback to flat list if sections prop not provided
         questions.map((question, index) => (

@@ -218,11 +218,11 @@ function renderInput(question: QuestionWithOptions, value: any, onChange: (v: an
       const steps = Array.from({ length: max - min + 1 }, (_, i) => i + min);
       return (
         <div className="space-y-3">
-          <div className="flex items-end gap-2">
+          <div className="flex flex-wrap items-end justify-center gap-2">
             {steps.map((num) => (
               <label
                 key={num}
-                className="flex flex-col items-center gap-1 cursor-pointer flex-1"
+                className="flex flex-col items-center gap-1 cursor-pointer min-w-[3rem]"
               >
                 <span className={`text-xs font-medium transition-colors ${value === num ? "text-primary" : "text-muted-foreground"}`}>
                   {num}
@@ -245,9 +245,9 @@ function renderInput(question: QuestionWithOptions, value: any, onChange: (v: an
               </label>
             ))}
           </div>
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>{question.scaleMinLabel || ""}</span>
-            <span>{question.scaleMaxLabel || ""}</span>
+          <div className="flex flex-col gap-1 text-xs text-muted-foreground sm:flex-row sm:justify-between">
+            <span className="break-words">{question.scaleMinLabel || ""}</span>
+            <span className="break-words text-right">{question.scaleMaxLabel || ""}</span>
           </div>
           {value !== undefined && value !== null && (
             <p className="text-xs text-primary font-medium">Seçiminiz: {value}</p>
