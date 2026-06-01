@@ -1,0 +1,23 @@
+name: Keep Render Awake (Ping)
+
+on:
+  schedule:
+    # every 10 minutes
+    - cron: '*/10 * * * *'
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    name: Ping target URL
+    runs-on: ubuntu-latest
+    steps:
+      - name: Curl Ping
+        env:
+          PING_URL: ${{ secrets.PING_URL }}
+        run: |
+          if [ -z "$PING_URL" ]; then
+            echo "PING_URL secret not set — exiting with non-fatal status";
+            exit 0;
+          fi
+          echo "Pinging $PING_URL";
+          curl -fsS --max-time 15 "$PING_URL" || echo "Ping failed but continuing";

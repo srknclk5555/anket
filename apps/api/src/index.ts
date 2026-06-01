@@ -2,6 +2,9 @@ import "dotenv/config";
 import { serve } from "@hono/node-server";
 import app from "./app.js";
 
+// simple health endpoint for uptime pings
+app.get("/api/health", (c) => c.json({ status: "ok" }));
+
 const port = parseInt(process.env.API_PORT || "3001");
 const hostname = "0.0.0.0";
 
