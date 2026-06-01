@@ -5,12 +5,14 @@ import { useSurvey } from "@/hooks/useSurvey";
 import { api } from "@/lib/api";
 import { SurveyForm } from "@/components/survey/SurveyForm";
 import { UserMenu } from "@/components/auth/UserMenu";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function SurveyPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
   const { survey, isLoading, error } = useSurvey(id);
+  const { theme, toggleTheme } = useTheme();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [alreadyResponded, setAlreadyResponded] = useState(false);
@@ -141,16 +143,25 @@ export default function SurveyPage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto px-4 py-3 sm:py-4 flex items-center justify-between gap-3">
+        <div className="max-w-3xl mx-auto px-4 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-3">
           <a href="/" className="text-base sm:text-xl font-bold text-primary leading-tight">
             Görünmeyen Lig Anketi
           </a>
-          <UserMenu />
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm font-medium text-foreground transition hover:bg-secondary"
+            >
+              {theme === "stadium" ? "☀️ Klasik" : "🌙 Stadyum"}
+            </button>
+            <UserMenu />
+          </div>
         </div>
       </header>
 
       <main className="max-w-3xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
-        <div className="sticky top-16 z-10 bg-white shadow-sm pb-3 pt-3">
+        <div className="sticky top-16 z-10 bg-background shadow-sm pb-3 pt-3 border-b border-border mb-6 sm:mb-8">
           <div className="mb-3 sm:mb-4">
             <h1 className="text-xl sm:text-2xl font-bold text-foreground">{survey.title}</h1>
             {survey.description && (

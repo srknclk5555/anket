@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import type { QuestionWithOptions, QuestionType } from "@gorunmeyen-lig/shared";
+import { useTheme } from "@/contexts/ThemeContext";
 import { QuestionRenderer } from "./QuestionRenderer";
 
 interface SurveyFormProps {
@@ -13,6 +14,7 @@ interface SurveyFormProps {
 }
 
 export function SurveyForm({ questions, sections, onSubmit, isSubmitting, onProgressChange }: SurveyFormProps) {
+  const { theme } = useTheme();
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [formOpenedAt] = useState(Date.now());
   const [openSectionIds, setOpenSectionIds] = useState<string[]>([]);
@@ -178,9 +180,9 @@ export function SurveyForm({ questions, sections, onSubmit, isSubmitting, onProg
       />
 
       {/* Progress bar */}
-      <div className="w-full bg-secondary rounded-full h-2">
+      <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
         <div
-          className="bg-primary rounded-full h-2 transition-all duration-300"
+          className={`rounded-full h-2 transition-all duration-300 ${theme === "stadium" ? "bg-[linear-gradient(90deg,_#16a34a,_#22c55e)]" : "bg-primary"}`}
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -195,7 +197,7 @@ export function SurveyForm({ questions, sections, onSubmit, isSubmitting, onProg
             <button
               type="button"
               onClick={() => toggleSection(section.id)}
-              className={`w-full flex justify-between items-center p-3 sm:p-4 border border-border rounded-md text-left text-sm sm:text-base ${completedSections.has(section.id) ? "bg-green-200" : "bg-card"}`}
+              className={`w-full flex justify-between items-center p-3 sm:p-4 border rounded-md text-left text-sm sm:text-base ${theme === "stadium" ? "border-[#334155] bg-[#1e3a5f] text-white" : completedSections.has(section.id) ? "border-border bg-green-200" : "border-border bg-card"}`}
             >
               <span className="font-medium text-foreground">
                 {section.title ?? "Bölüm"}

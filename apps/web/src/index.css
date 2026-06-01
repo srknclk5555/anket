@@ -47,6 +47,28 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 142.1 70.6% 45.3%;
   }
+
+  .stadium {
+    --background: 214 32% 9%;
+    --foreground: 210 24% 96%;
+    --card: 217 29% 18%;
+    --card-foreground: 210 24% 96%;
+    --popover: 217 29% 18%;
+    --popover-foreground: 210 24% 96%;
+    --primary: 145 61% 35%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 216 25% 27%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 216 25% 21%;
+    --muted-foreground: 210 30% 90%;
+    --accent: 145 61% 35%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 358 68% 54%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 216 25% 30%;
+    --input: 216 25% 30%;
+    --ring: 145 61% 35%;
+  }
 }
 
 @layer base {
