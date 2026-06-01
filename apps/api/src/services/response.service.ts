@@ -92,6 +92,7 @@ export class ResponseService {
           }
 
           answer.textValue = validItem.value;
+          answer.optionId = undefined;
           console.log(`✅ custom list item verified: ${answer.optionId}`);
           continue;
         }
