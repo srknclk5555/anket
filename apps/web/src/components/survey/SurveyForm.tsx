@@ -9,9 +9,10 @@ interface SurveyFormProps {
   sections?: { id: string; title?: string | null; description?: string | null; questions: QuestionWithOptions[] }[];
   onSubmit: (answers: Record<string, any>) => Promise<void>;
   isSubmitting: boolean;
+  onProgressChange?: (progress: number, answered: number, total: number) => void;
 }
 
-export function SurveyForm({ questions, sections, onSubmit, isSubmitting }: SurveyFormProps) {
+export function SurveyForm({ questions, sections, onSubmit, isSubmitting, onProgressChange }: SurveyFormProps) {
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [formOpenedAt] = useState(Date.now());
   const [openSectionIds, setOpenSectionIds] = useState<string[]>([]);
@@ -140,6 +141,10 @@ export function SurveyForm({ questions, sections, onSubmit, isSubmitting }: Surv
 
   const progress = requiredQuestions.length > 0 ? Math.round((answeredRequired.length / requiredQuestions.length) * 100) : 100;
 
+  useEffect(() => {
+    onProgressChange?.(progress, answeredRequired.length, requiredQuestions.length);
+  }, [progress, answeredRequired.length, requiredQuestions.length, onProgressChange]);
+
   const toggleSection = (id: string) => {
     setOpenSectionIds((prev) =>
       prev.includes(id) ? prev.filter((sid) => sid !== id) : [...prev, id]
@@ -147,7 +152,16 @@ export function SurveyForm({ questions, sections, onSubmit, isSubmitting }: Surv
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-8">
+    <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-8 pt-4">
+      {/* Honeypot — hidden from real users */}
+      <input
+        type="text"
+        name="honeypot"
+        style={{ position: "absolute", left: "-9999px", opacity: 0 }}
+        tabIndex={-1}
+        autoComplete="off"
+      />
+
       {/* Progress bar */}
       <div className="w-full bg-secondary rounded-full h-2">
         <div
@@ -158,15 +172,6 @@ export function SurveyForm({ questions, sections, onSubmit, isSubmitting }: Surv
       <p className="text-xs sm:text-sm text-muted-foreground">
         İlerleme: {answeredRequired.length}/{requiredQuestions.length} zorunlu soru
       </p>
-
-      {/* Honeypot — hidden from real users */}
-      <input
-        type="text"
-        name="honeypot"
-        style={{ position: "absolute", left: "-9999px", opacity: 0 }}
-        tabIndex={-1}
-        autoComplete="off"
-      />
 
       {/* Sections or flat questions */}
       {sections ? (
@@ -218,7 +223,7 @@ export function SurveyForm({ questions, sections, onSubmit, isSubmitting }: Surv
       )}
 
       {/* Submit */}
-      <div className="sticky bottom-0 bg-background pt-3 pb-4 sm:static sm:pt-0 sm:pb-0">
+      <div className="bg-background pt-3 pb-4 sm:pt-0 sm:pb-0">
         <button
           type="submit"
           disabled={isSubmitting || progress < 100}

@@ -14,6 +14,7 @@ export default function SurveyPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [alreadyResponded, setAlreadyResponded] = useState(false);
+  const [progressState, setProgressState] = useState({ progress: 0, answered: 0, total: 0 });
 
   useEffect(() => {
     if (!id || !isAuthenticated) return;
@@ -149,11 +150,23 @@ export default function SurveyPage() {
       </header>
 
       <main className="max-w-3xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-xl sm:text-2xl font-bold text-foreground">{survey.title}</h1>
-          {survey.description && (
-            <p className="text-muted-foreground mt-2 text-sm sm:text-base">{survey.description}</p>
-          )}
+        <div className="sticky top-16 z-10 bg-white shadow-sm pb-3 pt-3">
+          <div className="mb-3 sm:mb-4">
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">{survey.title}</h1>
+            {survey.description && (
+              <p className="text-muted-foreground mt-2 text-sm sm:text-base">{survey.description}</p>
+            )}
+          </div>
+
+          <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
+            <div
+              className="bg-primary rounded-full h-2 transition-all duration-300"
+              style={{ width: `${progressState.progress}%` }}
+            />
+          </div>
+          <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
+            İlerleme: {progressState.answered}/{progressState.total} zorunlu soru
+          </p>
         </div>
 
         {submitError && (
@@ -167,6 +180,9 @@ export default function SurveyPage() {
           sections={survey.sections}
           onSubmit={handleSubmit}
           isSubmitting={isSubmitting}
+          onProgressChange={(progress, answered, total) =>
+            setProgressState({ progress, answered, total })
+          }
         />
       </main>
     </div>
