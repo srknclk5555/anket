@@ -49,10 +49,25 @@ export function SurveyForm({ questions, sections, onSubmit, isSubmitting, onProg
     const firstIncomplete = sections.find((sec) => !newlyCompleted.has(sec.id));
     if (firstIncomplete && !openSectionIds.includes(firstIncomplete.id)) {
       setOpenSectionIds((prev) => [...prev, firstIncomplete.id]);
-      // scroll into view after state updates
+      // scroll into view after state updates, offset by sticky headers
       setTimeout(() => {
         const el = sectionRefs.current[firstIncomplete.id];
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (el) {
+          // Compute bottom edge of all sticky headers (navbar + survey header).
+          // Fallback to 144px if not available.
+          const stickyEls = document.querySelectorAll('.sticky');
+          let headerBottom = 144;
+          if (stickyEls.length > 0) {
+            headerBottom = Array.from(stickyEls).reduce((acc, el) => {
+              const rect = el.getBoundingClientRect();
+              return Math.max(acc, rect.bottom);
+            }, 0);
+          }
+
+          // Calculate target scroll position so the section sits below the headers.
+          const target = Math.max(0, window.scrollY + el.getBoundingClientRect().top - headerBottom - 8);
+          window.scrollTo({ top: target, behavior: 'smooth' });
+        }
       }, 0);
     }
   }, [answers, sections]);
