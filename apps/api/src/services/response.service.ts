@@ -45,7 +45,10 @@ export class ResponseService {
     });
 
     const questionMap = new Map(
-      surveyQuestions.map((q) => [q.id, { type: q.questionType, hasCustomList: !!q.customListId }])
+      surveyQuestions.map((q) => [
+        q.id,
+        { type: q.questionType, hasCustomList: !!q.customListId, customListId: q.customListId },
+      ])
     );
 
     // Validate each answer
