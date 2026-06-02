@@ -145,8 +145,8 @@ const createDevAuth = (baseURL: string, origin?: string) => {
     trustedOrigins: trustedOriginsOverride,
     socialProviders: {
       google: {
-        clientId: process.env.GOOGLE_CLIENT_ID!,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+        clientId: process.env.GOOGLE_CLIENT_ID_LOCAL || process.env.GOOGLE_CLIENT_ID!,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET_LOCAL || process.env.GOOGLE_CLIENT_SECRET!,
         redirectURI: `${baseURL}/api/auth/callback/google`,
       },
     },
