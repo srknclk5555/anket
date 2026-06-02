@@ -1,9 +1,11 @@
 import { useAuthStore } from "@/stores/auth-store";
 import { LoginButton } from "./LoginButton";
 import { API_BASE } from "@/lib/api";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export function UserMenu() {
   const { user, isAuthenticated, logout } = useAuthStore();
+  const { theme, toggleTheme } = useTheme();
 
   const handleLogout = async () => {
     try {
@@ -22,11 +24,22 @@ export function UserMenu() {
   };
 
   if (!isAuthenticated || !user) {
-    return <LoginButton />;
+    return (
+      <div className="flex items-center gap-2">
+        <LoginButton />
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="text-sm px-3 py-1 rounded-md border border-border bg-background text-foreground hover:bg-secondary transition-colors"
+        >
+          {theme === "stadium" ? "☀️ Klasik" : "🌙 Stadyum"}
+        </button>
+      </div>
+    );
   }
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2">
       {user.avatarUrl && (
         <img
           src={user.avatarUrl}
@@ -37,6 +50,13 @@ export function UserMenu() {
       <span className="text-sm font-medium text-foreground">
         {user.name || user.email}
       </span>
+      <button
+        type="button"
+        onClick={toggleTheme}
+        className="text-sm px-3 py-1 rounded-md border border-border bg-background text-foreground hover:bg-secondary transition-colors"
+      >
+        {theme === "stadium" ? "☀️ Klasik" : "🌙 Stadyum"}
+      </button>
       {user.isAdmin && (
         <a
           href="/admin"

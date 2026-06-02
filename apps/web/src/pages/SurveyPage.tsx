@@ -160,16 +160,7 @@ export default function SurveyPage() {
           <a href="/" className="text-base sm:text-xl font-bold text-primary leading-tight">
             Görünmeyen Lig Anketi
           </a>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition ${theme === "stadium" ? "border-transparent bg-gradient-to-r from-emerald-500 to-lime-400 text-slate-950 shadow-[0_10px_25px_-20px_rgba(22,163,74,0.9)] hover:scale-[1.02]" : "border border-border bg-background text-foreground hover:bg-secondary"}`}
-            >
-              {theme === "stadium" ? "☀️ Klasik" : "🌙 Stadyum"}
-            </button>
-            <UserMenu />
-          </div>
+          <UserMenu />
         </div>
       </header>
 

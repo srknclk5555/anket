@@ -138,7 +138,7 @@ export function QuestionManager({
   };
 
   const handleSaveEditType = async (questionId: string) => {
-    if (editType === "") return;
+    if (!editType) return;
     try {
       await api.patch(`/api/admin/questions/${questionId}`, { questionType: editType });
       onUpdateQuestion(questionId, { questionType: editType } as Partial<QuestionWithOptions>);
