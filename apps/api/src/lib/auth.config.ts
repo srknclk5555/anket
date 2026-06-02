@@ -132,6 +132,48 @@ const sharedConfig = {
   },
 };
 
+const authCache = new Map<string, any>();
+
+const createDevAuth = (baseURL: string, origin?: string) => {
+  const trustedOriginsOverride = isProduction
+    ? trustedOrigins
+    : [...sharedConfig.trustedOrigins, origin].filter(Boolean) as string[];
+
+  return betterAuth({
+    ...sharedConfig,
+    baseURL,
+    trustedOrigins: trustedOriginsOverride,
+    socialProviders: {
+      google: {
+        clientId: process.env.GOOGLE_CLIENT_ID!,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+        redirectURI: `${baseURL}/api/auth/callback/google`,
+      },
+    },
+  });
+};
+
+const getDevAuth = (req: Request) => {
+  const origin = req.headers.get("origin") || undefined;
+  const host = req.headers.get("host") || "localhost:3001";
+  const protocol = req.headers.get("x-forwarded-proto") || (origin?.startsWith("https://") ? "https" : "http");
+
+  let baseURL = `${protocol}://${host}`;
+  if (origin && origin.includes("nip.io")) {
+    const originUrl = new URL(origin);
+    originUrl.port = "3001";
+    baseURL = `${originUrl.protocol}//${originUrl.hostname}:${originUrl.port}`;
+  }
+
+  const cacheKey = `${baseURL}::${origin ?? ""}`;
+
+  if (!authCache.has(cacheKey)) {
+    authCache.set(cacheKey, createDevAuth(baseURL, origin));
+  }
+
+  return authCache.get(cacheKey);
+};
+
 /* ------------------------------------------------------------------ */
 /*  Two auth instances – same DB, different baseURL / redirectURI      */
 /* ------------------------------------------------------------------ */
@@ -142,8 +184,8 @@ export const localAuth = betterAuth({
   baseURL: "http://localhost:3001",
   socialProviders: {
     google: {
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: process.env.GOOGLE_CLIENT_ID_LOCAL!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET_LOCAL!,
       redirectURI: "http://localhost:3001/api/auth/callback/google",
     },
   },
@@ -189,15 +231,10 @@ export const prodAuth = betterAuth({
 });
 
 export function getAuth(req: Request) {
-  if (process.env.NODE_ENV === "production") {
+  if (isProduction) {
     return prodAuth;
   }
-  const origin = req.headers.get("origin") || "";
-  const host = req.headers.get("host") || "";
-  if (origin.includes("nip.io") || host.includes("nip.io")) {
-    return nipAuth;
-  }
-  return localAuth;
+  return getDevAuth(req);
 }
 
 // Default export for backward-compat (used by auth.routes.ts etc.)
