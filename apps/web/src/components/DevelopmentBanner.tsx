@@ -22,7 +22,7 @@ export function DevelopmentBanner() {
     <div className="bg-[#F59E0B] text-[#1a1a1a] px-4 py-2 text-sm font-medium flex items-center justify-between sticky top-0 z-[100]">
       <div className="flex items-center gap-2">
         <span>🚧</span>
-        <span>Site geliştirme aşamasındadır, bazı özellikler çalışmayabilir.</span>
+        <span>Site geliştirme aşamasındadır . Deneyiminizi iyileştirmek için çalışmalarımız devam etmektedir.</span>
       </div>
       <button 
         onClick={handleDismiss}

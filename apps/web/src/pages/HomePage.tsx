@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { LoginButton } from "@/components/auth/LoginButton";
 import { UserMenu } from "@/components/auth/UserMenu";
 import { usePublishedSurveys } from "@/hooks/useSurvey";
 import { DevelopmentBanner } from "@/components/DevelopmentBanner";
@@ -34,10 +35,20 @@ export default function HomePage() {
             <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4">
               Türk Futbol Taraftarları Anketi
             </h2>
-            <p className="text-muted-foreground mb-8 max-w-md mx-auto text-sm sm:text-base px-2">
-              Görünmeyen Lig Anketi'ne katılmak için Google hesabınız ile giriş yapın.
-            </p>
-            <UserMenu />
+            <LoginButton />
+            <div className="mt-4 max-w-md mx-auto rounded-2xl border border-sky-200 bg-sky-50 p-4 shadow-sm text-left text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sky-100 text-sky-700 shadow-sm dark:bg-slate-800 dark:text-sky-300">
+                  ℹ️
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold">Neden giriş yapmalıyım?</h3>
+                  <p className="mt-1 text-sm leading-6 text-slate-700 dark:text-slate-300">
+                    Anketimiz her kullanıcının yalnızca bir kez katılabilmesi için Google hesabı ile giriş gerektirmektedir. Kişisel bilgileriniz paylaşılmaz, yalnızca tekrar katılımı önlemek amacıyla kullanılır.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         ) : (
           <div>
