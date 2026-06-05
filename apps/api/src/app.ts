@@ -8,9 +8,11 @@ import { handleAuthMe } from "./routes/auth.routes.js";
 import surveyRoutes from "./routes/survey.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import { authRateLimit } from "./middleware/rateLimit.js";
+import { ipLogger } from "./middleware/ipLogger.js";
 
 const app = new Hono();
 
+app.use("*", ipLogger);
 app.use("*", logger());
 const allowedOrigins = [
   "https://anket-web.pages.dev",

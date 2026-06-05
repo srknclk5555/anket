@@ -1,3 +1,11 @@
 name = "gorunmeyen-lig-web"
 compatibility_date = "2024-01-01"
 pages_build_output_dir = "./dist"
+
+[[headers]]
+for = "/*"
+headers = { "Cache-Control" = "public, max-age=0, must-revalidate" }
+
+[[headers]]
+for = "/assets/*"
+headers = { "Cache-Control" = "public, max-age=31536000, immutable" }
